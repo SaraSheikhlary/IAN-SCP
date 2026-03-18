@@ -1,5 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
+from engine import fetch_orbital_inventory, get_satellite_coordinates, detect_high_risk_conjunctions, calculate_evasion_maneuver
 from engine import fetch_orbital_inventory, get_satellite_coordinates, detect_high_risk_conjunctions
 
 st.set_page_config(page_title="IAN-SCP Dashboard", layout="wide")
@@ -65,14 +66,25 @@ if monitor_active:
 
             with tab3:
                 st.write("### Autonomous Risk Prediction Engine")
-                st.caption(f"Scanning for trajectories breaching the 1e-4 threshold...")
+                st.caption("Scanning for trajectories breaching the 1e-4 threshold...")
 
                 with st.spinner("Calculating orbital conjunctions..."):
-                    # Run the math using the coordinates we already fetched
                     alerts = detect_high_risk_conjunctions(x, y, z, names)
 
                     if len(alerts) > 0:
                         st.error(f"CRITICAL: {len(alerts)} high-risk conjunctions detected!")
                         st.table(alerts)
+
+                        # --- NEW: Phase 3 Execution Layer ---
+                        st.divider()
+                        st.write("### Tactical Evasion Solutions")
+                        st.caption("Generate optimized maneuver vectors for flagged assets.")
+
+                        if st.button("Calculate Optimal Maneuvers"):
+                            with st.spinner("Optimizing fuel consumption and calculating Delta-V..."):
+                                solutions = calculate_evasion_maneuver(alerts)
+                                st.success("Maneuver vectors calculated successfully.")
+                                st.table(solutions)
+
                     else:
                         st.success("Clear: No high-risk conjunctions detected in current orbital shell.")
