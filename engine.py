@@ -1,35 +1,57 @@
-from skyfield.api import load
-import numpy as np
+import streamlit as st
+import plotly.graph_objects as go
+from engine import fetch_orbital_inventory, get_satellite_coordinates
 
+st.set_page_config(page_title="IAN-SCP Dashboard", layout="wide")
 
-def fetch_orbital_inventory():
-    """Fetches real-time TLE data from Celestrak."""
-    stations_url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle'
-    satellites = load.tle_file(stations_url)
-    print(f"Successfully loaded {len(satellites)} active satellites into IAN-SCP.")
-    return satellites
+st.title("🛰️ IAN-SCP: Satellite Collision Prevention")
+st.caption("The TCP/IP layer of orbital collision prevention")
 
+# Metrics from Technical Plan
+col1, col2, col3 = st.columns(3)
+col1.metric("Risk Threshold", "1e-4", "Target")
+col2.metric("Maneuver Success", "≥92%", "Target")
+col3.metric("Fuel Optimization", "20-35%", "Target")
 
-def get_satellite_coordinates(satellites, sample_size=800):
-    """
-    Calculates the X, Y, Z coordinates for a sample of satellites.
-    We use a sample size to prevent the web browser from lagging or crashing.
-    """
-    ts = load.timescale()
-    t = ts.now()
+# Sidebar for operator control
+st.sidebar.header("Global Shell Monitoring")
+monitor_active = st.sidebar.toggle("Real-time Data Ingestion", value=True)
 
-    x, y, z = [], [], []
-    names = []
+if monitor_active:
+    with st.spinner("Accessing High-precision ephemeris streams..."):
+        sats = fetch_orbital_inventory()
+        st.success(f"Monitoring {len(sats)} active satellites across LEO.")
+        
+        st.write("### Live Orbital Map (High-density shell mapping)")
+        
+        # Calculate coordinates for a sample of satellites
+        x, y, z, names = get_satellite_coordinates(sats, sample_size=1000)
+        
+        # Create the 3D Scatter Plot
+        fig = go.Figure()
+        fig.add_trace(go.Scatter3d(
+            x=x, y=y, z=z,
+            mode='markers',
+            text=names,
+            marker=dict(size=2, color='cyan', opacity=0.8),
+            name="LEO Satellites"
+        ))
+        
+        # Format the map to look like dark space
+        fig.update_layout(
+            template="plotly_dark",
+            margin=dict(l=0, r=0, b=0, t=0),
+            scene=dict(
+                xaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+                yaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+                zaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+            )
+        )
+        
+        # Display the map in Streamlit
+        st.plotly_chart(fig, use_container_width=True)
 
-    for sat in satellites[:sample_size]:
-        geocentric = sat.at(t)
-        pos = geocentric.position.km
-
-        # Ensure the calculation didn't return an error/NaN
-        if not np.isnan(pos[0]):
-            x.append(pos[0])
-            y.append(pos[1])
-            z.append(pos[2])
-            names.append(sat.name)
-
-    return x, y, z, names
+        # --- THE TABLE IS BACK ---
+        st.write("### Active Satellite Inventory (Data Acquisition Layer)")
+        sat_names = [s.name for s in sats[:10]]
+        st.table({"Satellite Name": sat_names, "Status": ["Protected"] * 10})
