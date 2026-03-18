@@ -1,36 +1,35 @@
-from skyfield.api import load, EarthSatellite
-from skyfield.timelib import Time
-import datetime
+from skyfield.api import load
+import numpy as np
 
 
 def fetch_orbital_inventory():
-    """
-    IAN-SCP Data Acquisition Layer:
-    Ingests TLE data for all active satellites.
-    """
-    # Loading real-time data from Celestrak (Active satellites)
+    """Fetches real-time TLE data from Celestrak."""
     stations_url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle'
     satellites = load.tle_file(stations_url)
-    print(f"Successfully loaded {len(satellites)} active satellites into IAN-SCP.")[cite: 13]
+    print(f"Successfully loaded {len(satellites)} active satellites into IAN-SCP.")
     return satellites
 
 
-def calculate_position(satellite, time_offset_hours=0):
+def get_satellite_coordinates(satellites, sample_size=800):
     """
-    Calculates the x, y, z position of a satellite.
-    Supports the Risk Prediction Engine's modeling.
+    Calculates the X, Y, Z coordinates for a sample of satellites.
+    We use a sample size to prevent the web browser from lagging or crashing.
     """
     ts = load.timescale()
-    now = datetime.datetime.utcnow() + datetime.timedelta(hours=time_offset_hours)
-    t = ts.from_datetime(now.replace(tzinfo=datetime.timezone.utc))
+    t = ts.now()
 
-    geocentric = satellite.at(t)
-    return geocentric.position.km
+    x, y, z = [], [], []
+    names = []
 
+    for sat in satellites[:sample_size]:
+        geocentric = sat.at(t)
+        pos = geocentric.position.km
 
-if __name__ == "__main__":
-    inventory = fetch_orbital_inventory()
-    # Example: Check position of the first satellite in the list
-    sample_sat = inventory[0]
-    pos = calculate_position(sample_sat)
-    print(f"Tracking: {sample_sat.name} | Current Position (km): {pos}")
+        # Ensure the calculation didn't return an error/NaN
+        if not np.isnan(pos[0]):
+            x.append(pos[0])
+            y.append(pos[1])
+            z.append(pos[2])
+            names.append(sat.name)
+
+    return x, y, z, names
