@@ -1,0 +1,5 @@
+streamlit
+skyfield
+plotly
+pandas
+numpy
