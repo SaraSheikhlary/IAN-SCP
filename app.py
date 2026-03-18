@@ -21,32 +21,45 @@ if monitor_active:
     with st.spinner("Accessing High-precision ephemeris streams..."):
         sats = fetch_orbital_inventory()
         st.success(f"Monitoring {len(sats)} active satellites across LEO.")
-
-        st.write("### Live Orbital Map (High-density shell mapping)")
-
-        # Calculate coordinates for a sample of satellites
-        x, y, z, names = get_satellite_coordinates(sats, sample_size=1000)
-
-        # Create the 3D Scatter Plot
-        fig = go.Figure()
-        fig.add_trace(go.Scatter3d(
-            x=x, y=y, z=z,
-            mode='markers',
-            text=names,  # Shows satellite name on hover
-            marker=dict(size=2, color='cyan', opacity=0.8),
-            name="LEO Satellites"
-        ))
-
-        # Format the map to look like dark space
-        fig.update_layout(
-            template="plotly_dark",
-            margin=dict(l=0, r=0, b=0, t=0),
-            scene=dict(
-                xaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
-                yaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
-                zaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+        
+        # --- CREATING THE TABS ---
+        tab1, tab2 = st.tabs(["🌐 3D Orbital Map", "📋 Active Satellite Inventory"])
+        
+        with tab1:
+            st.write("### Live Orbital Map (High-density shell mapping)")
+            
+            # Calculate coordinates
+            x, y, z, names = get_satellite_coordinates(sats, sample_size=1000)
+            
+            # Create the 3D Scatter Plot
+            fig = go.Figure()
+            fig.add_trace(go.Scatter3d(
+                x=x, y=y, z=z,
+                mode='markers',
+                text=names,
+                marker=dict(size=2, color='cyan', opacity=0.8),
+                name="LEO Satellites"
+            ))
+            
+            # Format the map
+            fig.update_layout(
+                template="plotly_dark",
+                margin=dict(l=0, r=0, b=0, t=0),
+                scene=dict(
+                    xaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+                    yaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+                    zaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+                ),
+                height=600 # Makes the map taller
             )
-        )
+            
+            st.plotly_chart(fig, use_container_width=True)
 
-        # Display the map in Streamlit
-        st.plotly_chart(fig, use_container_width=True)
+        with tab2:
+            # --- THE TABLE TAB ---
+            st.write("### Data Acquisition Layer")
+            st.caption("Real-time list of ingested satellite telemetry.")
+            
+            # Now showing 50 satellites since we have more room!
+            sat_names = [s.name for s in sats[:50]]
+            st.table({"Satellite Name": sat_names, "Status": ["Protected"] * 50})
