@@ -3,10 +3,9 @@ import plotly.graph_objects as go
 from engine import fetch_orbital_inventory, get_satellite_coordinates, detect_high_risk_conjunctions, calculate_evasion_maneuver
 from engine import fetch_orbital_inventory, get_satellite_coordinates, detect_high_risk_conjunctions
 
-st.set_page_config(page_title="IAN-SCP Dashboard", layout="wide")
+st.set_page_config(page_title="AstroShield AI Dashboard", layout="wide")
 
-st.title("🛰️ IAN-SCP: Satellite Collision Prevention")
-st.caption("The TCP/IP layer of orbital collision prevention")
+st.title("🛰️ AstroShield AI: Satellite Collision Prevention")
 
 # Metrics from Technical Plan
 col1, col2, col3 = st.columns(3)
@@ -115,3 +114,4 @@ if monitor_active:
 
                     else:
                         st.success("Clear: No high-risk conjunctions detected in current orbital shell.")
+
