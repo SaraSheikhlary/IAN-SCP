@@ -66,8 +66,32 @@ def get_satellite_coordinates(satellites, sample_size=1000):
 
 
 # --- PHASE 2: RISK PREDICTION ENGINE ---
-def detect_high_risk_conjunctions(satellites):
-    pass 
+import random 
+
+def detect_high_risk_conjunctions(x_coords, y_coords, z_coords, names):
+    """Simulates an AI risk prediction engine scanning for orbital conjunctions."""
+    alerts = []
+    
+    # If the map hasn't loaded any satellites yet, return empty
+    if not names:
+        return alerts
+        
+    # Simulate finding 3 high-risk collision trajectories
+    num_alerts = min(3, len(names))
+    
+    # Pick 3 random satellites from our loaded active list
+    risky_indices = random.sample(range(len(names)), num_alerts)
+    
+    for idx in risky_indices:
+        alerts.append({
+            "Primary Asset": names[idx],
+            "Threat Object": f"DEBRIS-FRAG-{random.randint(1000, 9999)}",
+            "Collision Probability": f"{random.uniform(1.2, 4.5):.2f}e-4",
+            "Time to Impact": f"T-Minus {random.randint(12, 90)} mins",
+            "Status": "ACTION REQUIRED"
+        })
+        
+    return alerts
 
 
 # --- PHASE 3: AUTONOMOUS EXECUTION LAYER ---
