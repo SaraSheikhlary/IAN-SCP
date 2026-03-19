@@ -5,33 +5,36 @@ import numpy as np
 from skyfield.api import Loader
 
 # --- CLOUD SETUP ---
-# Create a cloud-safe loader that saves downloads to Streamlit's temporary directory
 load = Loader('/tmp/skyfield_data')
 
 
 # --- PHASE 1: DATA ACQUISITION LAYER ---
 def fetch_orbital_inventory():
-    """
-    Fetches real-time TLE data from Celestrak.
-    Uses a disguised User-Agent to bypass cloud firewalls and saves to /tmp.
-    """
+    """Fetches TLE data with an offline fallback for strict cloud firewalls."""
     url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle'
-    local_path = '/tmp/skyfield_data/active.txt'
+    cloud_path = '/tmp/skyfield_data/active.txt'
+    backup_file = 'active.txt'  # The offline file we just added
     
     os.makedirs('/tmp/skyfield_data', exist_ok=True)
     
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
     }
     
-    response = requests.get(url, headers=headers, timeout=15)
-    
-    with open(local_path, 'w') as f:
-        f.write(response.text)
+    try:
+        # 1. Try to get the live data from Celestrak
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status()
+        with open(cloud_path, 'w') as f:
+            f.write(response.text)
+        satellites = load.tle_file(cloud_path)
+        print("Success: Loaded live data from Celestrak.")
         
-    satellites = load.tle_file(local_path)
-    
-    print(f"Successfully loaded {len(satellites)} active satellites into AstroShield AI.")
+    except Exception:
+        # 2. If Celestrak blocks the cloud server, use our static backup!
+        print("Blocked by firewall: Falling back to offline active.txt backup.")
+        satellites = load.tle_file(backup_file)
+        
     return satellites
 
 
@@ -57,19 +60,9 @@ def get_satellite_coordinates(satellites):
 
 # --- PHASE 2: RISK PREDICTION ENGINE ---
 def detect_high_risk_conjunctions(satellites):
-    """
-    AstroShield AI Risk Prediction Engine (Phase 2)
-    Scans the orbital environment for trajectories breaching the 1e-4 safety threshold.
-    """
-    # (Your existing Euclidean distance and threshold math goes here)
     pass 
 
 
 # --- PHASE 3: AUTONOMOUS EXECUTION LAYER ---
 def calculate_evasion_maneuver(high_risk_assets):
-    """
-    AstroShield AI Autonomous Execution Layer (Phase 3)
-    Calculates optimal evasion maneuvers and required Delta-V (m/s).
-    """
-    # (Your existing Delta-V calculation and DataFrame generation goes here)
     pass
