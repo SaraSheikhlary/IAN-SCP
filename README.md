@@ -1,8 +1,8 @@
-# 🛰️ IAN-SCP: Satellite Collision Prevention Architecture
+# 🛰️ AstroShield AI: Satellite Collision Prevention Architecture
 
 > **The TCP/IP layer of orbital collision prevention.**
 
-IAN-SCP is a localized, software-first solution designed to autonomously identify high-risk satellite conjunctions in Low Earth Orbit (LEO) and calculate optimized evasion maneuvers. By leveraging real-time Two-Line Element (TLE) telemetry and 3D orbital shell mapping, the system acts as an autonomous traffic control network for orbital assets.
+AstroShield AI is a localized, software-first solution designed to autonomously identify high-risk satellite conjunctions in Low Earth Orbit (LEO) and calculate optimized evasion maneuvers. By leveraging real-time Two-Line Element (TLE) telemetry and 3D orbital shell mapping, the system acts as an autonomous traffic control network for orbital assets.
 
 ## 📊 Key Performance Targets
 * **Collision Risk Threshold:** $1 \times 10^{-4}$ probability 
@@ -13,7 +13,7 @@ IAN-SCP is a localized, software-first solution designed to autonomously identif
 
 ## 🏗️ System Architecture
 
-The IAN-SCP codebase is divided into four distinct operational phases:
+The AstroShield AI codebase is divided into four distinct operational phases:
 
 ### Phase 1: Data Acquisition Layer (`engine.py`)
 * Ingests real-time TLE telemetry for 30,000+ active satellites and debris objects via Celestrak.
