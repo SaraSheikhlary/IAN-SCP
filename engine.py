@@ -13,7 +13,34 @@ def fetch_orbital_inventory():
     """Fetches TLE data with an offline fallback for strict cloud firewalls."""
     url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle'
     cloud_path = '/tmp/skyfield_data/active.txt'
-    backup_file = 'active.txt'  # The offline file we just added
+    
+    # NEW: Bulletproof absolute path for Streamlit Cloud
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    backup_file = os.path.join(current_dir, 'active.txt')
+    
+    os.makedirs('/tmp/skyfield_data', exist_ok=True)
+    
+    headers = {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
+    }
+    
+    try:
+        # 1. Try to get the live data from Celestrak
+        response = requests.get(url, headers=headers, timeout=5)
+        response.raise_for_status()
+        with open(cloud_path, 'w') as f:
+            f.write(response.text)
+        satellites = load.tle_file(cloud_path)
+        print("Success: Loaded live data from Celestrak.")
+        
+    except Exception:
+        # 2. If Celestrak blocks the cloud server, use our static backup!
+        print("Blocked by firewall: Falling back to offline active.txt backup.")
+        satellites = load.tle_file(backup_file)
+        
+    return satellites  
+    
+    # The offline file 
     
     os.makedirs('/tmp/skyfield_data', exist_ok=True)
     
