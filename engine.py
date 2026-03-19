@@ -40,7 +40,7 @@ import math
 
 def detect_high_risk_conjunctions(x, y, z, names, threshold_km=100):
     """
-    IAN-SCP Risk Prediction Engine (Phase 2)
+    AstroShield AI Risk Prediction Engine (Phase 2)
     Scans the current orbital shell for satellites within a dangerous proximity.
     """
     high_risk_pairs = []
@@ -74,7 +74,7 @@ import random
 
 def calculate_evasion_maneuver(conjunctions):
     """
-    IAN-SCP Autonomous Execution Layer (Phase 3)
+    AstroShield AI Autonomous Execution Layer (Phase 3)
     Calculates optimal Delta-V and fuel-saving maneuvers for high-risk assets.
     """
     maneuvers = []
