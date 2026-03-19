@@ -115,3 +115,15 @@ if monitor_active:
                     else:
                         st.success("Clear: No high-risk conjunctions detected in current orbital shell.")
 
+# --- FOOTER ---
+st.markdown("---") # Adds a subtle divider line
+st.markdown(
+    """
+    <div style='text-align: center; color: gray; font-size: small;'>
+        © 2026 AstroShield AI. All rights reserved.<br>
+        <i>Powered by high-precision ephemeris streams and autonomous risk prediction.</i>
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+
