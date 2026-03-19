@@ -3,7 +3,48 @@ import plotly.graph_objects as go
 from engine import fetch_orbital_inventory, get_satellite_coordinates, detect_high_risk_conjunctions, calculate_evasion_maneuver
 from engine import fetch_orbital_inventory, get_satellite_coordinates, detect_high_risk_conjunctions
 
-st.set_page_config(page_title="AstroShield AI Dashboard", layout="wide")
+import streamlit as st
+
+# MUST be the first streamlit command in the file
+st.set_page_config(page_title="AstroShield AI", page_icon="🛰️", layout="wide")
+
+def apply_cinematic_ui():
+    st.markdown(
+        f"""
+        <style>
+        /* 1. The Galaxy Background */
+        .stApp {{
+            background-image: url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072&auto=format&fit=crop");
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+        }}
+
+        /* 2. Glassmorphism for your existing cards/metrics */
+        [data-testid="stMetric"], .st-emotion-cache-12w0qpk, [data-testid="stVerticalBlock"] > div {{
+            background: rgba(14, 17, 23, 0.75) !important;
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 20px;
+        }}
+
+        /* 3. Make titles glow */
+        h1, h2, h3 {{
+            color: #00d4ff !important;
+            text-shadow: 0px 0px 15px rgba(0, 212, 255, 0.4);
+        }}
+
+        /* 4. Fix text visibility */
+        .stMarkdown, p, span {{
+            color: #ffffff !important;
+        }}
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+apply_cinematic_ui()
 
 st.title("🛰️ AstroShield AI: Satellite Collision Prevention")
 
