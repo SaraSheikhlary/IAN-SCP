@@ -71,7 +71,7 @@ def apply_force_theme():
 
 apply_force_theme()
 
-# --- YOUR ORIGINAL LOGIC (Unchanged) ---
+# --- The ORIGINAL LOGIC (Unchanged) ---
 st.title("🛰️ AstroShield AI: Satellite Collision Prevention")
 
 col1, col2, col3 = st.columns(3)
