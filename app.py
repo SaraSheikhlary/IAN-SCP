@@ -112,8 +112,26 @@ if monitor_active:
 
         with tab2:
             st.write("### Data Acquisition Layer")
-            sat_names = [s.name for s in sats[:50]]
-            st.table({"Satellite Name": sat_names, "Status": ["Protected"] * 50})
+            st.caption("Real-time list of ingested satellite telemetry.")
+
+            # --- NEW: Live Search Bar ---
+            search_term = st.text_input("🔍 Search Active Inventory (e.g., STARLINK, ISS, NOAA)", "STARLINK")
+            
+            # Filter the satellite list based on what the user types
+            filtered_names = [s.name for s in sats if search_term.upper() in s.name.upper()]
+            
+            # Grab up to 50 results so the browser doesn't slow down
+            display_names = filtered_names[:50]
+            
+            # Display the table dynamically
+            if len(display_names) > 0:
+                st.table({
+                    "Satellite Name": display_names, 
+                    "Operator/Type": ["SpaceX" if "STARLINK" in name else "Tracked Asset" for name in display_names],
+                    "Status": ["Protected"] * len(display_names)
+                })
+            else:
+                st.warning(f"No active satellites found matching '{search_term}'.")
 
         with tab3:
             st.write("### Autonomous Risk Prediction Engine")
