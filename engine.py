@@ -7,14 +7,14 @@ from skyfield.api import Loader
 # --- CLOUD SETUP ---
 load = Loader('/tmp/skyfield_data')
 
-
 # --- PHASE 1: DATA ACQUISITION LAYER ---
 def fetch_orbital_inventory():
-    """Fetches active satellites AND major debris clouds, combining them."""
+    """Fetches active satellites AND major debris clouds natively."""
     active_url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle'
     debris_url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=iridium-33-debris&FORMAT=tle'
     
-    cloud_path = '/tmp/skyfield_data/combined.txt'
+    active_path = '/tmp/skyfield_data/active.txt'
+    debris_path = '/tmp/skyfield_data/debris.txt'
     
     # Bulletproof absolute path for Streamlit Cloud
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -27,29 +27,30 @@ def fetch_orbital_inventory():
     }
     
     try:
-        # 1. Fetch Active Satellites
+        # 1. Fetch & Parse Active Satellites safely
         response_active = requests.get(active_url, headers=headers, timeout=5)
         response_active.raise_for_status()
+        with open(active_path, 'w') as f:
+            f.write(response_active.text)
+        active_sats = load.tle_file(active_path)
         
-        # 2. Fetch the Iridium-33 Debris Cloud
+        # 2. Fetch & Parse the Iridium-33 Debris Cloud safely
         response_debris = requests.get(debris_url, headers=headers, timeout=5)
         response_debris.raise_for_status()
+        with open(debris_path, 'w') as f:
+            f.write(response_debris.text)
+        debris_sats = load.tle_file(debris_path)
         
-        # 3. Combine them into one giant file
-        combined_data = response_active.text + "\n" + response_debris.text
-        
-        with open(cloud_path, 'w') as f:
-            f.write(combined_data)
-            
-        satellites = load.tle_file(cloud_path)
         print("Success: Loaded live Active Satellites AND Debris Cloud from Celestrak.")
         
-    except Exception:
-        # 4. If Celestrak blocks the cloud server, use our static backup!
-        print("Blocked by firewall: Falling back to offline active.txt backup.")
-        satellites = load.tle_file(backup_file)
+        # 3. Combine the parsed lists! 
+        return active_sats + debris_sats
         
-    return satellites
+    except Exception as e:
+        # 4. If Celestrak blocks the cloud server, use our static backup!
+        print(f"Blocked by firewall: Falling back to offline active.txt backup. Error: {e}")
+        satellites = load.tle_file(backup_file)
+        return satellites
 
 
 def get_satellite_coordinates(satellites, sample_size=None):
