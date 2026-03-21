@@ -10,9 +10,11 @@ load = Loader('/tmp/skyfield_data')
 
 # --- PHASE 1: DATA ACQUISITION LAYER ---
 def fetch_orbital_inventory():
-    """Fetches TLE data with an offline fallback for strict cloud firewalls."""
-    url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle'
-    cloud_path = '/tmp/skyfield_data/active.txt'
+    """Fetches active satellites AND major debris clouds, combining them."""
+    active_url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=active&FORMAT=tle'
+    debris_url = 'https://celestrak.org/NORAD/elements/gp.php?GROUP=iridium-33-debris&FORMAT=tle'
+    
+    cloud_path = '/tmp/skyfield_data/combined.txt'
     
     # Bulletproof absolute path for Streamlit Cloud
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -25,16 +27,25 @@ def fetch_orbital_inventory():
     }
     
     try:
-        # 1. Try to get the live data from Celestrak
-        response = requests.get(url, headers=headers, timeout=5)
-        response.raise_for_status()
+        # 1. Fetch Active Satellites
+        response_active = requests.get(active_url, headers=headers, timeout=5)
+        response_active.raise_for_status()
+        
+        # 2. Fetch the Iridium-33 Debris Cloud
+        response_debris = requests.get(debris_url, headers=headers, timeout=5)
+        response_debris.raise_for_status()
+        
+        # 3. Combine them into one giant file
+        combined_data = response_active.text + "\n" + response_debris.text
+        
         with open(cloud_path, 'w') as f:
-            f.write(response.text)
+            f.write(combined_data)
+            
         satellites = load.tle_file(cloud_path)
-        print("Success: Loaded live data from Celestrak.")
+        print("Success: Loaded live Active Satellites AND Debris Cloud from Celestrak.")
         
     except Exception:
-        # 2. If Celestrak blocks the cloud server, use our static backup!
+        # 4. If Celestrak blocks the cloud server, use our static backup!
         print("Blocked by firewall: Falling back to offline active.txt backup.")
         satellites = load.tle_file(backup_file)
         
