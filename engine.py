@@ -44,7 +44,8 @@ def fetch_orbital_inventory():
         print("Success: Loaded live Active Satellites AND Debris Cloud from Celestrak.")
         
         # 3. Combine the parsed lists! 
-        return active_sats + debris_sats
+        # CHANGED: Debris is now added first so it never gets cut off by sample limits
+        return debris_sats + active_sats
         
     except Exception as e:
         # 4. If Celestrak blocks the cloud server, use our static backup!
