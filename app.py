@@ -1,5 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
+import numpy as np  # <-- NEW: Needed for Earth math
 import time
 from engine import (
     fetch_orbital_inventory, 
@@ -94,7 +95,6 @@ if monitor_active:
             
             x, y, z, names = get_satellite_coordinates(sats)
 
-            # --- NEW ROBUST COLOR LOGIC (Splits into 2 Layers) ---
             x_act, y_act, z_act, names_act = [], [], [], []
             x_deb, y_deb, z_deb, names_deb = [], [], [], []
 
@@ -111,6 +111,24 @@ if monitor_active:
                     names_act.append(names[i])
 
             fig = go.Figure()
+
+            # --- NEW: HOLOGRAPHIC EARTH LAYER ---
+            # Earth's radius is roughly 6371 km
+            R = 6371 
+            u = np.linspace(0, 2 * np.pi, 100)
+            v = np.linspace(0, np.pi, 100)
+            x_surf = R * np.outer(np.cos(u), np.sin(v))
+            y_surf = R * np.outer(np.sin(u), np.sin(v))
+            z_surf = R * np.outer(np.ones(np.size(u)), np.cos(v))
+
+            fig.add_trace(go.Surface(
+                x=x_surf, y=y_surf, z=z_surf,
+                colorscale=[[0, '#020617'], [1, '#0ea5e9']], # Cyberpunk Dark Blue to Cyan
+                showscale=False,
+                opacity=0.5, # Slightly transparent so you can see orbits behind it!
+                hoverinfo='skip',
+                name="Earth"
+            ))
             
             # Layer 1: Active Satellites (Cyan/Blue)
             fig.add_trace(go.Scatter3d(
@@ -120,7 +138,7 @@ if monitor_active:
                 name="Active Assets"
             ))
             
-            # Layer 2: Debris (Bright Red - Slightly larger so they stand out)
+            # Layer 2: Debris (Bright Red)
             fig.add_trace(go.Scatter3d(
                 x=x_deb, y=y_deb, z=z_deb,
                 mode='markers', text=names_deb, hoverinfo='text',
@@ -133,11 +151,12 @@ if monitor_active:
                 margin=dict(l=0, r=0, b=0, t=0),
                 paper_bgcolor='rgba(0,0,0,0)', 
                 plot_bgcolor='rgba(0,0,0,0)',
-                legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01), # Added a legend!
+                legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
                 scene=dict(
                     xaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
                     yaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
                     zaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
+                    camera=dict(eye=dict(x=1.5, y=1.5, z=1.5)) # Zooms the camera out perfectly
                 ),
                 height=600
             )
@@ -147,16 +166,10 @@ if monitor_active:
             st.write("### Data Acquisition Layer")
             st.caption("Real-time list of ingested satellite telemetry.")
 
-            # --- Live Search Bar ---
             search_term = st.text_input("🔍 Search Active Inventory (e.g., STARLINK, ISS, DEB)", "STARLINK")
-            
-            # Filter the satellite list based on what the user types
             filtered_names = [s.name for s in sats if search_term.upper() in s.name.upper()]
-            
-            # Grab up to 50 results so the browser doesn't slow down
             display_names = filtered_names[:50]
             
-            # Display the table dynamically
             if len(display_names) > 0:
                 st.table({
                     "Asset Name": display_names, 
