@@ -92,20 +92,40 @@ if monitor_active:
         with tab1:
             st.write("### Live Orbital Map (High-density shell mapping)")
             
-            # Removed the 1000 limit so it renders ALL objects!
             x, y, z, names = get_satellite_coordinates(sats)
 
-            # --- NEW COLOR LOGIC ---
-            # Debris turns bright red, active satellites turn bright blue
-            point_colors = ['#ff003c' if 'DEB' in str(name).upper() else '#00f2fe' for name in names]
+            # --- NEW ROBUST COLOR LOGIC (Splits into 2 Layers) ---
+            x_act, y_act, z_act, names_act = [], [], [], []
+            x_deb, y_deb, z_deb, names_deb = [], [], [], []
+
+            for i in range(len(names)):
+                if 'DEB' in str(names[i]).upper():
+                    x_deb.append(x[i])
+                    y_deb.append(y[i])
+                    z_deb.append(z[i])
+                    names_deb.append(names[i])
+                else:
+                    x_act.append(x[i])
+                    y_act.append(y[i])
+                    z_act.append(z[i])
+                    names_act.append(names[i])
 
             fig = go.Figure()
+            
+            # Layer 1: Active Satellites (Cyan/Blue)
             fig.add_trace(go.Scatter3d(
-                x=x, y=y, z=z,
-                mode='markers',
-                text=names,
-                marker=dict(size=2, color=point_colors, opacity=0.8), # Applied colors here
-                name="Orbital Objects"
+                x=x_act, y=y_act, z=z_act,
+                mode='markers', text=names_act, hoverinfo='text',
+                marker=dict(size=2, color='#00f2fe', opacity=0.6), 
+                name="Active Assets"
+            ))
+            
+            # Layer 2: Debris (Bright Red - Slightly larger so they stand out)
+            fig.add_trace(go.Scatter3d(
+                x=x_deb, y=y_deb, z=z_deb,
+                mode='markers', text=names_deb, hoverinfo='text',
+                marker=dict(size=3, color='#ff003c', opacity=1.0), 
+                name="Lethal Debris"
             ))
 
             fig.update_layout(
@@ -113,6 +133,7 @@ if monitor_active:
                 margin=dict(l=0, r=0, b=0, t=0),
                 paper_bgcolor='rgba(0,0,0,0)', 
                 plot_bgcolor='rgba(0,0,0,0)',
+                legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01), # Added a legend!
                 scene=dict(
                     xaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
                     yaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
