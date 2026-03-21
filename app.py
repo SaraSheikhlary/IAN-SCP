@@ -1,6 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
-import numpy as np  # <-- NEW: Needed for Earth math
+import numpy as np
 import time
 from engine import (
     fetch_orbital_inventory, 
@@ -9,7 +9,7 @@ from engine import (
     calculate_evasion_maneuver
 )
 
-# 1. PAGE CONFIG (Must be absolutely first)
+# 1. PAGE CONFIG
 st.set_page_config(page_title="AstroShield AI", page_icon="🛰️", layout="wide")
 
 # 2. FORCE DARK THEME & GALAXY BACKGROUND
@@ -17,42 +17,17 @@ def apply_force_theme():
     st.markdown(
         """
         <style>
-        /* Force background on the main container and the root */
         [data-testid="stAppViewContainer"], .main, .stApp {
             background-image: url("https://images.unsplash.com/photo-1446776811953-b23d57bd21aa?q=80&w=2072&auto=format&fit=crop") !important;
             background-attachment: fixed !important;
             background-size: cover !important;
             background-position: center !important;
         }
-
-        /* Clean up the header area so it's transparent */
-        [data-testid="stHeader"] {
-            background: rgba(0,0,0,0) !important;
-            color: white !important;
-        }
-
-        /* Sidebar Styling */
-        [data-testid="stSidebar"] {
-            background-color: rgba(10, 10, 20, 0.95) !important;
-        }
-
-        /* Force ALL text to white and add glow to headers */
-        h1, h2, h3, p, span, label, .stMetric label {
-            color: #ffffff !important;
-        }
-        
-        h1, h2, h3 {
-            text-shadow: 0px 0px 15px rgba(0, 212, 255, 0.6) !important;
-            color: #00d4ff !important;
-        }
-
-        /* NEW: Force Title (h1) to stay on one line */
-        h1 {
-            font-size: 2.2rem !important;
-            white-space: nowrap !important;
-        }
-
-        /* Glassmorphism for Metrics and Cards */
+        [data-testid="stHeader"] { background: rgba(0,0,0,0) !important; color: white !important; }
+        [data-testid="stSidebar"] { background-color: rgba(10, 10, 20, 0.95) !important; }
+        h1, h2, h3, p, span, label, .stMetric label { color: #ffffff !important; }
+        h1, h2, h3 { text-shadow: 0px 0px 15px rgba(0, 212, 255, 0.6) !important; color: #00d4ff !important; }
+        h1 { font-size: 2.2rem !important; white-space: nowrap !important; }
         [data-testid="stMetric"], [data-testid="stVerticalBlock"] > div, .stTabs {
             background: rgba(14, 17, 23, 0.8) !important;
             backdrop-filter: blur(12px) !important;
@@ -60,11 +35,7 @@ def apply_force_theme():
             border-radius: 15px !important;
             padding: 20px !important;
         }
-        
-        /* Ensure the Plotly chart background is transparent */
-        .js-plotly-plot .plotly .main-svg {
-            background: transparent !important;
-        }
+        .js-plotly-plot .plotly .main-svg { background: transparent !important; }
         </style>
         """,
         unsafe_allow_html=True
@@ -72,7 +43,7 @@ def apply_force_theme():
 
 apply_force_theme()
 
-# --- The ORIGINAL LOGIC ---
+# --- MAIN UI ---
 st.title("🛰️ AstroShield AI: Satellite Collision Prevention")
 
 col1, col2, col3 = st.columns(3)
@@ -86,7 +57,7 @@ monitor_active = st.sidebar.toggle("Real-time Data Ingestion", value=True)
 if monitor_active:
     with st.spinner("Accessing High-precision ephemeris streams..."):
         sats = fetch_orbital_inventory()
-        st.success(f"Monitoring {len(sats)} active satellites across LEO.")
+        st.success(f"Monitoring {len(sats)} tracked objects across LEO.")
 
         tab1, tab2, tab3 = st.tabs(["🌐 3D Orbital Map", "📋 Active Inventory", "⚠️ Risk Engine Alerts"])
         
@@ -112,25 +83,49 @@ if monitor_active:
 
             fig = go.Figure()
 
-            # --- NEW: HOLOGRAPHIC EARTH LAYER ---
-            # Earth's radius is roughly 6371 km
-            R = 6371 
-            u = np.linspace(0, 2 * np.pi, 100)
-            v = np.linspace(0, np.pi, 100)
+            # --- NEW: PROFESSIONAL HOLOGRAPHIC WIREFRAME EARTH ---
+            R = 6371 # Earth radius in km
+            u = np.linspace(0, 2 * np.pi, 60)
+            v = np.linspace(0, np.pi, 60)
+            
+            # 1. Dark Translucent Core
             x_surf = R * np.outer(np.cos(u), np.sin(v))
             y_surf = R * np.outer(np.sin(u), np.sin(v))
             z_surf = R * np.outer(np.ones(np.size(u)), np.cos(v))
 
             fig.add_trace(go.Surface(
                 x=x_surf, y=y_surf, z=z_surf,
-                colorscale=[[0, '#020617'], [1, '#0ea5e9']], # Cyberpunk Dark Blue to Cyan
-                showscale=False,
-                opacity=0.5, # Slightly transparent so you can see orbits behind it!
-                hoverinfo='skip',
-                name="Earth"
+                colorscale=[[0, '#020617'], [1, '#052e47']], # Deep space blue
+                showscale=False, opacity=0.8, hoverinfo='skip', name="Earth Core"
             ))
+
+            # 2. Glowing Latitude/Longitude Graticules
+            line_color = '#00d4ff'
             
-            # Layer 1: Active Satellites (Cyan/Blue)
+            # Latitudes
+            for lat in np.linspace(-np.pi/2 + 0.2, np.pi/2 - 0.2, 8):
+                x_lat = R * 1.02 * np.cos(u) * np.cos(lat)
+                y_lat = R * 1.02 * np.sin(u) * np.cos(lat)
+                z_lat = R * 1.02 * np.ones_like(u) * np.sin(lat)
+                fig.add_trace(go.Scatter3d(
+                    x=x_lat, y=y_lat, z=z_lat, mode='lines', 
+                    line=dict(color=line_color, width=1, dash='dot'), 
+                    hoverinfo='skip', showlegend=False
+                ))
+
+            # Longitudes
+            for lon in np.linspace(0, 2*np.pi, 12, endpoint=False):
+                x_lon = R * 1.02 * np.cos(lon) * np.sin(v)
+                y_lon = R * 1.02 * np.sin(lon) * np.sin(v)
+                z_lon = R * 1.02 * np.cos(v)
+                fig.add_trace(go.Scatter3d(
+                    x=x_lon, y=y_lon, z=z_lon, mode='lines', 
+                    line=dict(color=line_color, width=1, dash='dot'), 
+                    hoverinfo='skip', showlegend=False
+                ))
+            # --------------------------------------------------------
+
+            # Layer 1: Active Satellites
             fig.add_trace(go.Scatter3d(
                 x=x_act, y=y_act, z=z_act,
                 mode='markers', text=names_act, hoverinfo='text',
@@ -138,7 +133,7 @@ if monitor_active:
                 name="Active Assets"
             ))
             
-            # Layer 2: Debris (Bright Red)
+            # Layer 2: Lethal Debris
             fig.add_trace(go.Scatter3d(
                 x=x_deb, y=y_deb, z=z_deb,
                 mode='markers', text=names_deb, hoverinfo='text',
@@ -156,7 +151,8 @@ if monitor_active:
                     xaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
                     yaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
                     zaxis=dict(showbackground=False, showgrid=False, zeroline=False, showticklabels=False),
-                    camera=dict(eye=dict(x=1.5, y=1.5, z=1.5)) # Zooms the camera out perfectly
+                    camera=dict(eye=dict(x=1.5, y=1.5, z=1.5)),
+                    aspectmode='data'  # <--- CRITICAL FIX: Forces a perfect sphere!
                 ),
                 height=600
             )
@@ -164,8 +160,6 @@ if monitor_active:
 
         with tab2:
             st.write("### Data Acquisition Layer")
-            st.caption("Real-time list of ingested satellite telemetry.")
-
             search_term = st.text_input("🔍 Search Active Inventory (e.g., STARLINK, ISS, DEB)", "STARLINK")
             filtered_names = [s.name for s in sats if search_term.upper() in s.name.upper()]
             display_names = filtered_names[:50]
