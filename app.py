@@ -3,28 +3,32 @@ import plotly.graph_objects as go
 import numpy as np
 import time
 from engine import (
-    fetch_orbital_inventory, 
-    get_satellite_coordinates, 
-    detect_high_risk_conjunctions, 
+    fetch_orbital_inventory,
+    get_satellite_coordinates,
+    detect_high_risk_conjunctions,
     calculate_evasion_maneuver
 )
 
 # --- PUBLIC ACCESS LINKS ---
 ASTROSHIELD_FAVICON_URL = "https://raw.githubusercontent.com/SaraSheikhlary/AstroShield-AI/main/Astroshield_favicon_square.png"
-ASTROSHIELD_LOGO_WIDE_URL = "https://raw.githubusercontent.com/SaraSheikhlary/AstroShield-AI/main/Astroshield_logo_wide.png"
 
-# 1. PAGE CONFIG
+# PASTE THE RAW GITHUB LINK TO THE NEW GLOBE IMAGE HERE
+ASTROSHIELD_SIDEBAR_LOGO_URL = "https://raw.githubusercontent.com/SaraSheikhlary/AstroShield-AI/main/Astroshield_logo_wide.png"
+
+
+# 1. PAGE CONFIG (Updated for Google SEO & Branding)
 st.set_page_config(
     page_title="AstroShield AI | Satellite Collision Avoidance Digital Twin",
-    page_icon=ASTROSHIELD_FAVICON_URL,
+    page_icon=ASTROSHIELD_FAVICON_URL, # <--- Favicon added here!
     layout="wide",
     initial_sidebar_state="expanded",
     menu_items={
         'Get Help': 'https://astroshield-ai.com',
-        'Report a bug': 'https://github.com/SaraSheikhlary/AstroShield-AI',
+        'Report a bug': 'https://github.com/SaraSheikhary/astroshield',
         'About': 'AstroShield AI: Real-time SGP4 orbital tracking and risk mitigation engine.'
     }
 )
+
 
 # 2. FORCE DARK THEME & GALAXY BACKGROUND
 def apply_force_theme():
@@ -55,17 +59,22 @@ def apply_force_theme():
         unsafe_allow_html=True
     )
 
+
 apply_force_theme()
 
 # --- MAIN UI ---
-# Displaying your new logo on the landing page
-st.image(ASTROSHIELD_LOGO_WIDE_URL, use_container_width=True)
-st.markdown("<br>", unsafe_allow_html=True) 
+#  title!
+st.title("🛰️ AstroShield AI: Satellite Collision Prevention")
 
 col1, col2, col3 = st.columns(3)
 col1.metric("Risk Threshold", "1e-4", "Target")
 col2.metric("Maneuver Success", "≥92%", "Target")
 col3.metric("Fuel Optimization", "20-35%", "Target")
+
+# --- SIDEBAR ---
+# Logo added to the sidebar right above the header!
+st.sidebar.image(ASTROSHIELD_SIDEBAR_LOGO_URL, use_container_width=True)
+st.sidebar.markdown("<br>", unsafe_allow_html=True) # Adds a tiny bit of breathing room below the image
 
 st.sidebar.header("Global Shell Monitoring")
 monitor_active = st.sidebar.toggle("Real-time Data Ingestion", value=True)
@@ -76,10 +85,10 @@ if monitor_active:
         st.success(f"Monitoring {len(sats)} tracked objects across LEO.")
 
         tab1, tab2, tab3 = st.tabs(["🌐 3D Orbital Map", "📋 Active Inventory", "⚠️ Risk Engine Alerts"])
-        
+
         with tab1:
             st.write("### Live Orbital Map (High-density shell mapping)")
-            
+
             x, y, z, names = get_satellite_coordinates(sats)
 
             x_act, y_act, z_act, names_act = [], [], [], []
@@ -100,10 +109,10 @@ if monitor_active:
             fig = go.Figure()
 
             # --- PROFESSIONAL HOLOGRAPHIC WIREFRAME EARTH ---
-            R = 6371 # Earth radius in km
+            R = 6371  # Earth radius in km
             u = np.linspace(0, 2 * np.pi, 60)
             v = np.linspace(0, np.pi, 60)
-            
+
             # 1. Dark Translucent Core
             x_surf = R * np.outer(np.cos(u), np.sin(v))
             y_surf = R * np.outer(np.sin(u), np.sin(v))
@@ -111,32 +120,32 @@ if monitor_active:
 
             fig.add_trace(go.Surface(
                 x=x_surf, y=y_surf, z=z_surf,
-                colorscale=[[0, '#020617'], [1, '#052e47']], # Deep space blue
+                colorscale=[[0, '#020617'], [1, '#052e47']],  # Deep space blue
                 showscale=False, opacity=0.8, hoverinfo='skip', name="Earth Core"
             ))
 
             # 2. Glowing Latitude/Longitude Graticules
             line_color = '#00d4ff'
-            
+
             # Latitudes
-            for lat in np.linspace(-np.pi/2 + 0.2, np.pi/2 - 0.2, 8):
+            for lat in np.linspace(-np.pi / 2 + 0.2, np.pi / 2 - 0.2, 8):
                 x_lat = R * 1.02 * np.cos(u) * np.cos(lat)
                 y_lat = R * 1.02 * np.sin(u) * np.cos(lat)
                 z_lat = R * 1.02 * np.ones_like(u) * np.sin(lat)
                 fig.add_trace(go.Scatter3d(
-                    x=x_lat, y=y_lat, z=z_lat, mode='lines', 
-                    line=dict(color=line_color, width=1, dash='dot'), 
+                    x=x_lat, y=y_lat, z=z_lat, mode='lines',
+                    line=dict(color=line_color, width=1, dash='dot'),
                     hoverinfo='skip', showlegend=False
                 ))
 
             # Longitudes
-            for lon in np.linspace(0, 2*np.pi, 12, endpoint=False):
+            for lon in np.linspace(0, 2 * np.pi, 12, endpoint=False):
                 x_lon = R * 1.02 * np.cos(lon) * np.sin(v)
                 y_lon = R * 1.02 * np.sin(lon) * np.sin(v)
                 z_lon = R * 1.02 * np.cos(v)
                 fig.add_trace(go.Scatter3d(
-                    x=x_lon, y=y_lon, z=z_lon, mode='lines', 
-                    line=dict(color=line_color, width=1, dash='dot'), 
+                    x=x_lon, y=y_lon, z=z_lon, mode='lines',
+                    line=dict(color=line_color, width=1, dash='dot'),
                     hoverinfo='skip', showlegend=False
                 ))
             # --------------------------------------------------------
@@ -145,22 +154,22 @@ if monitor_active:
             fig.add_trace(go.Scatter3d(
                 x=x_act, y=y_act, z=z_act,
                 mode='markers', text=names_act, hoverinfo='text',
-                marker=dict(size=2, color='#00f2fe', opacity=0.6), 
+                marker=dict(size=2, color='#00f2fe', opacity=0.6),
                 name="Active Assets"
             ))
-            
+
             # Layer 2: Lethal Debris
             fig.add_trace(go.Scatter3d(
                 x=x_deb, y=y_deb, z=z_deb,
                 mode='markers', text=names_deb, hoverinfo='text',
-                marker=dict(size=3, color='#ff003c', opacity=1.0), 
+                marker=dict(size=3, color='#ff003c', opacity=1.0),
                 name="Lethal Debris"
             ))
 
             fig.update_layout(
                 template="plotly_dark",
                 margin=dict(l=0, r=0, b=0, t=0),
-                paper_bgcolor='rgba(0,0,0,0)', 
+                paper_bgcolor='rgba(0,0,0,0)',
                 plot_bgcolor='rgba(0,0,0,0)',
                 legend=dict(yanchor="top", y=0.99, xanchor="left", x=0.01),
                 scene=dict(
@@ -179,11 +188,13 @@ if monitor_active:
             search_term = st.text_input("🔍 Search Active Inventory (e.g., STARLINK, ISS, DEB)", "STARLINK")
             filtered_names = [s.name for s in sats if search_term.upper() in s.name.upper()]
             display_names = filtered_names[:50]
-            
+
             if len(display_names) > 0:
                 st.table({
-                    "Asset Name": display_names, 
-                    "Classification": ["Debris" if "DEB" in name else ("SpaceX" if "STARLINK" in name else "Tracked Asset") for name in display_names],
+                    "Asset Name": display_names,
+                    "Classification": [
+                        "Debris" if "DEB" in name else ("SpaceX" if "STARLINK" in name else "Tracked Asset") for name in
+                        display_names],
                     "Status": ["Lethal Threat" if "DEB" in name else "Protected" for name in display_names]
                 })
             else:
@@ -213,6 +224,6 @@ st.markdown(
         © 2026 AstroShield AI. All rights reserved.<br>
         <i>Powered by high-precision ephemeris streams and autonomous risk prediction.</i>
     </div>
-    """, 
+    """,
     unsafe_allow_html=True
 )
