@@ -3,7 +3,7 @@
 
 AstroShield AI is a high-performance, interactive web application built to simulate and visualize Low Earth Orbit (LEO) satellite environments. It acts as a digital twin for orbital traffic management, utilizing (simulated) high-precision ephemeris streams to predict conjunctions and calculate evasion maneuvers for critical space assets.
 
-![AstroShield AI Banner](https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop) *(Optional: Replace this link with a screenshot of your actual landing page!)*
+![AstroShield AI Banner](https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=1000&auto=format&fit=crop) 
 
 ## ✨ Key Features
 
