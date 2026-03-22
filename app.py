@@ -11,6 +11,7 @@ from engine import (
 
 # --- PUBLIC ACCESS LINKS ---
 ASTROSHIELD_FAVICON_URL = "https://raw.githubusercontent.com/SaraSheikhlary/AstroShield-AI/main/Astroshield_favicon_square.png"
+# Ensure your logo link is here for the sidebar in the main app
 ASTROSHIELD_SIDEBAR_LOGO_URL = "https://raw.githubusercontent.com/SaraSheikhlary/AstroShield-AI/main/Astroshield_logo_wide.png"
 
 # 1. PAGE CONFIG (Must be the very first Streamlit command)
@@ -34,7 +35,7 @@ if 'entered_app' not in st.session_state:
 #         SCREEN 1: LANDING PAGE
 # ==========================================
 if not st.session_state.entered_app:
-    # Cinematic Earth Background for the landing page
+    # Cinematic Earth Background & Custom White Button CSS
     st.markdown(
         """
         <style>
@@ -46,24 +47,53 @@ if not st.session_state.entered_app:
         }
         [data-testid="stHeader"] { background: rgba(0,0,0,0) !important; color: white !important; }
         [data-testid="stSidebar"] { display: none !important; } /* Hide sidebar on landing page */
+        
+        /* Force the button to be White with Black Text */
+        div.stButton > button {
+            background-color: #ffffff !important;
+            color: #000000 !important;
+            border: none !important;
+            border-radius: 4px !important;
+            font-size: 1.2rem !important;
+            font-weight: 800 !important;
+            padding: 0.75rem 2rem !important;
+            transition: all 0.2s ease-in-out !important;
+        }
+        div.stButton > button:hover {
+            background-color: #e0e0e0 !important;
+            transform: scale(1.02) !important;
+            box-shadow: 0px 0px 15px rgba(255, 255, 255, 0.5) !important;
+        }
         </style>
         """,
         unsafe_allow_html=True
     )
     
     # Vertically push content down to center it
-    st.markdown("<br><br><br><br><br><br>", unsafe_allow_html=True)
+    st.markdown("<br><br><br><br>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns([1, 2, 1])
     with col2:
-        # Centered Logo
-        st.image(ASTROSHIELD_SIDEBAR_LOGO_URL, use_container_width=True)
-        st.markdown("<h3 style='text-align: center; color: white; text-shadow: 0px 0px 10px #00d4ff;'>Planetary Defense & Orbital Intelligence</h3><br>", unsafe_allow_html=True)
+        # Cinematic Title and Description Box
+        st.markdown(
+            """
+            <div style='text-align: center; background: rgba(10, 15, 25, 0.65); padding: 40px; border-radius: 15px; backdrop-filter: blur(8px); border: 1px solid rgba(255,255,255,0.1); margin-bottom: 30px;'>
+                <h1 style='color: white; font-size: 3.5rem; text-shadow: 0px 0px 20px rgba(0,212,255,0.5); margin-bottom: 10px; font-weight: 800;'>
+                    AstroShield AI
+                </h1>
+                <p style='color: #e2e8f0; font-size: 1.2rem; line-height: 1.6; margin-bottom: 0;'>
+                    <strong>Real-time Satellite Collision Avoidance & Digital Twin.</strong><br>
+                    Powered by high-precision ephemeris streams and autonomous risk prediction to protect critical assets in Low Earth Orbit.
+                </p>
+            </div>
+            """, 
+            unsafe_allow_html=True
+        )
         
-        # Big Enter Button
-        if st.button("🚀 INITIATE SYSTEM", use_container_width=True, type="primary"):
+        # The custom styled button
+        if st.button("INITIATE SYSTEM", use_container_width=True):
             st.session_state.entered_app = True
-            st.rerun() # Immediately reloads the script to show the main app
+            st.rerun()
 
 # ==========================================
 #         SCREEN 2: MAIN DASHBOARD
