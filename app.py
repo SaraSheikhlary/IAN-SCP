@@ -58,7 +58,9 @@ def apply_force_theme():
 apply_force_theme()
 
 # --- MAIN UI ---
-st.title("🛰️ AstroShield AI: Satellite Collision Prevention")
+# Display the wide logo instead of the old text title
+st.image(ASTROSHIELD_LOGO_WIDE_URL, use_container_width=True, output_format="PNG")
+st.markdown("<br>", unsafe_allow_html=True) 
 
 col1, col2, col3 = st.columns(3)
 col1.metric("Risk Threshold", "1e-4", "Target")
