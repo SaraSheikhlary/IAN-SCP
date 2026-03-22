@@ -26,7 +26,7 @@ st.set_page_config(
     }
 )
 
-# 2. FORCE DARK THEME & GALAXY BACKGROUND
+# 2. FORCE DARK THEME & GALAXY BACKGROUND (Kept exactly as it was!)
 def apply_force_theme():
     st.markdown(
         """
@@ -58,8 +58,8 @@ def apply_force_theme():
 apply_force_theme()
 
 # --- MAIN UI ---
-# Display the wide logo instead of the old text title
-st.image(ASTROSHIELD_LOGO_WIDE_URL, use_container_width=True, output_format="PNG")
+# Displaying your new logo on the landing page
+st.image(ASTROSHIELD_LOGO_WIDE_URL, use_container_width=True)
 st.markdown("<br>", unsafe_allow_html=True) 
 
 col1, col2, col3 = st.columns(3)
@@ -209,10 +209,4 @@ if monitor_active:
 st.markdown("---")
 st.markdown(
     """
-    <div style='text-align: center; color: rgba(255, 255, 255, 0.6); font-size: 0.85em; padding-bottom: 20px;'>
-        © 2026 AstroShield AI. All rights reserved.<br>
-        <i>Powered by high-precision ephemeris streams and autonomous risk prediction.</i>
-    </div>
-    """, 
-    unsafe_allow_html=True
-)
+    <div style='text-align: center; color: rgba(255, 255, 255,
