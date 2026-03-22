@@ -9,8 +9,18 @@ from engine import (
     calculate_evasion_maneuver
 )
 
-# 1. PAGE CONFIG
-st.set_page_config(page_title="AstroShield AI", page_icon="🛰️", layout="wide")
+# 1. PAGE CONFIG (Updated for Google SEO & Branding)
+st.set_page_config(
+    page_title="AstroShield AI | Satellite Collision Avoidance Digital Twin",
+    page_icon="🛰️",
+    layout="wide",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://astroshield-ai.com',
+        'Report a bug': 'https://github.com/yourusername/astroshield', # Update with your real github name!
+        'About': 'AstroShield AI: Real-time SGP4 orbital tracking and risk mitigation engine.'
+    }
+)
 
 # 2. FORCE DARK THEME & GALAXY BACKGROUND
 def apply_force_theme():
@@ -83,7 +93,7 @@ if monitor_active:
 
             fig = go.Figure()
 
-            # --- NEW: PROFESSIONAL HOLOGRAPHIC WIREFRAME EARTH ---
+            # --- PROFESSIONAL HOLOGRAPHIC WIREFRAME EARTH ---
             R = 6371 # Earth radius in km
             u = np.linspace(0, 2 * np.pi, 60)
             v = np.linspace(0, np.pi, 60)
